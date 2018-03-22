@@ -12,6 +12,7 @@ package dao;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -29,10 +30,14 @@ public class LoginDAO {
 
         try {
             Object obj = parser.parse(new FileReader(JSON_END));
-            JSONObject loginJSON = (JSONObject) obj;
-
-            usuario = (String) loginJSON.get("login").toString();
-            senha = (String) loginJSON.get("senha").toString();
+            JSONArray loginJSON = (JSONArray) obj;
+            for(int i=0;i<loginJSON.size();i++){
+                JSONObject j = (JSONObject)loginJSON.get(i);
+                usuario = j.get("login").toString();
+                senha = j.get("senha").toString();
+                if(usuario.equals(pUsuario) && senha.equals(pSenha))
+                    return usuario.equals(pUsuario) && senha.equals(pSenha);
+            }
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado.");
         } catch (IOException e) {
