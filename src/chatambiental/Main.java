@@ -6,8 +6,6 @@
 package chatambiental;
 
 import dao.LoginDAO;
-import org.json.simple.parser.ParseException;
-
 /**
  *
  * @author jorge
@@ -17,7 +15,7 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         // TODO code application logic here
         boolean ret = LoginDAO.verificarCredenciais("chataps", "chataps");
         System.out.println(ret);

@@ -14,31 +14,35 @@ import java.io.FileReader;
 import java.io.IOException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class LoginDAO {
-    
+
     private static final String JSON_END = "json\\login.json";
-    
-    public static boolean verificarCredenciais(String pUsuario, String pSenha) throws org.json.simple.parser.ParseException {
+
+    public static boolean verificarCredenciais(String pUsuario, String pSenha) {
 
         JSONParser parser = new JSONParser();
         String usuario = "";
         String senha = "";
-        
+        boolean ret = false;
+
         try {
             Object obj = parser.parse(new FileReader(JSON_END));
             JSONObject loginJSON = (JSONObject) obj;
-            
-            usuario = (String) loginJSON.get("usuario");
-            senha = (String) loginJSON.get("senha");
-        }
-        catch (FileNotFoundException e) {
+
+            usuario = (String) loginJSON.get("login").toString();
+            senha = (String) loginJSON.get("senha").toString();
+        } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado.");
         } catch (IOException e) {
             System.out.println(e.getCause());
+        } catch (ParseException e) {
+            System.out.println(e.getCause());
         }
-        
+
         return usuario.equals(pUsuario) && senha.equals(pSenha);
-        
+
     }
-    
+
 }
