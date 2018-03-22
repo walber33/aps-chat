@@ -5,6 +5,7 @@
  */
 package chatambiental;
 
+import dao.LoginDAO;
 /**
  *
  * @author jorge
@@ -16,6 +17,8 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        boolean ret = LoginDAO.verificarCredenciais("chataps", "chataps");
+        System.out.println(ret);
     }
     
 }
