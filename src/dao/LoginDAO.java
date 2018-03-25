@@ -36,7 +36,7 @@ public class LoginDAO {
                 usuario = j.get("login").toString();
                 senha = j.get("senha").toString();
                 if(usuario.equals(pUsuario) && senha.equals(pSenha))
-                    return usuario.equals(pUsuario) && senha.equals(pSenha);
+                    return true;
             }
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado.");
