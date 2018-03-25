@@ -46,7 +46,7 @@ public class LoginDAO {
             System.out.println(e.getCause());
         }
 
-        return usuario.equals(pUsuario) && senha.equals(pSenha);
+        return false;
 
     }
 
