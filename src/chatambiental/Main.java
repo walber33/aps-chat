@@ -6,6 +6,10 @@
 package chatambiental;
 
 import dao.LoginDAO;
+import java.io.*;
+import java.net.*;
+import javax.swing.JOptionPane;
+import view.ServerView;
 /**
  *
  * @author jorge
@@ -16,9 +20,12 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        boolean ret = LoginDAO.verificarCredenciais("chataps", "chataps");
-        System.out.println(ret);
+        
+        final int PORTA = Integer.parseInt(args[0]);
+        
+        ServerView serverView = new ServerView();
+        serverView.setVisible(true);
+        
     }
     
 }
