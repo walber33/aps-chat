@@ -7,7 +7,7 @@ package dao;
 
 /**
  *
- * @author jorge
+ * @author jorge/walber
  */
 import java.io.FileNotFoundException;
 import java.io.FileReader;
