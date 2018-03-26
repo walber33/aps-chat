@@ -16,8 +16,13 @@ public class ServerView extends javax.swing.JFrame {
     /**
      * Creates new form ServerView
      */
-    public ServerView() {
+    public ServerView(int porta) {
         initComponents();
+        txtPorta.setText(""+porta);
+    }
+
+    private ServerView() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
@@ -83,6 +88,11 @@ public class ServerView extends javax.swing.JFrame {
         usuariosOnline.setText("Usuários Online");
 
         encerrarServidor.setText("Encerar Servidor");
+        encerrarServidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encerrarServidorActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -157,6 +167,10 @@ public class ServerView extends javax.swing.JFrame {
         // TODO add your handling code here:
         evt.consume();
     }//GEN-LAST:event_txtAreaLogKeyTyped
+
+    private void encerrarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encerrarServidorActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_encerrarServidorActionPerformed
 
     /**
      * @param args the command line arguments
