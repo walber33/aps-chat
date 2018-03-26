@@ -49,7 +49,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="txtPorta" min="-2" pref="169" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="iniciarServidor" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnIniciarServidor" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -63,7 +63,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="txtPorta" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="iniciarServidor" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnIniciarServidor" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
@@ -124,28 +124,37 @@
         <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtPortaKeyTyped"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="iniciarServidor">
+    <Component class="javax.swing.JButton" name="btnIniciarServidor">
       <Properties>
         <Property name="text" type="java.lang.String" value="Iniciar Servidor"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="iniciarServidorActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnIniciarServidorActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="limparLog">
       <Properties>
         <Property name="text" type="java.lang.String" value="Limpar LOG"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="limparLogActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="usuariosOnline">
       <Properties>
         <Property name="text" type="java.lang.String" value="Usu&#xe1;rios Online"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usuariosOnlineActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="encerrarServidor">
       <Properties>
         <Property name="text" type="java.lang.String" value="Encerar Servidor"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="encerrarServidorActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
