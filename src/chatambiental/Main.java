@@ -6,8 +6,6 @@
 package chatambiental;
 
 import dao.LoginDAO;
-import java.io.*;
-import java.net.*;
 import javax.swing.JOptionPane;
 import view.ServerView;
 import javax.swing.JPasswordField;
@@ -39,7 +37,7 @@ public class Main {
             if(option == JOptionPane.OK_OPTION)
                 if(LoginDAO.verificarCredenciais(login, senha)){
                     option = JOptionPane.CANCEL_OPTION;
-                    ServerView serverView = new ServerView(PORTA);
+                    ServerView serverView = new ServerView();
                     serverView.setVisible(true);
                 }
                 else{
