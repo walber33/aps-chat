@@ -5,13 +5,101 @@
  */
 package view;
 
+import dao.LoginDAO;
 import javax.swing.JOptionPane;
+import java.io.*;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author jorge
  */
 public class ServerView extends javax.swing.JFrame {
+
+    private ArrayList<Cliente> users = new ArrayList<>();
+    
+    public class Server implements Runnable {
+        
+        String usuario, senha;
+
+        @Override
+        public void run() {
+            int porta = Integer.parseInt(txtPorta.getText());
+            Socket cli = null;
+            BufferedReader in = null;
+            PrintStream out = null;
+            ServerSocket ss = null;
+            
+            txtAreaLog.append("Escutando porta " + porta + "...\n");
+            
+            try {
+                ss = new ServerSocket(porta);
+                while (true) {
+                    cli = ss.accept();
+                    txtAreaLog.append("Nova conexão\n");
+                    in = new BufferedReader(new InputStreamReader(cli.getInputStream()));
+                    out = new PrintStream(cli.getOutputStream());
+
+                    usuario = in.readLine();
+                    senha = in.readLine();
+                    
+                    if (LoginDAO.verificarCredenciais(usuario, senha)) {
+                        txtAreaLog.append("Usuario " + usuario + " logado\n");
+                        Thread client = new Thread(new Cliente(usuario, cli, in, out));
+                        client.start();
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    in.close();
+                    out.close();
+                    cli.close();
+                    ss.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+    }
+
+    public class Cliente implements Runnable {
+
+        String usuario, senha, mensagem;
+        BufferedReader in = null;
+        PrintStream out = null;
+        Socket cli = null;
+
+        public Cliente(String usuario, Socket cli, BufferedReader in, PrintStream out) {
+            this.usuario = usuario;
+            this.cli = cli;
+            this.in = in;
+            this.out = out;
+            users.add(this);
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mensagem = in.readLine();
+                    //out.println("Mensagem do servidor");
+                    System.out.println(mensagem);
+                    for(Cliente cli : users) {
+                        if (cli != this) {
+                            cli.out.println(mensagem);
+                        }
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
 
     /**
      * Creates new form ServerView
@@ -40,7 +128,7 @@ public class ServerView extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtPorta = new javax.swing.JTextField();
-        iniciarServidor = new javax.swing.JButton();
+        btnIniciarServidor = new javax.swing.JButton();
         limparLog = new javax.swing.JButton();
         usuariosOnline = new javax.swing.JButton();
         encerrarServidor = new javax.swing.JButton();
@@ -76,16 +164,26 @@ public class ServerView extends javax.swing.JFrame {
             }
         });
 
-        iniciarServidor.setText("Iniciar Servidor");
-        iniciarServidor.addActionListener(new java.awt.event.ActionListener() {
+        btnIniciarServidor.setText("Iniciar Servidor");
+        btnIniciarServidor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                iniciarServidorActionPerformed(evt);
+                btnIniciarServidorActionPerformed(evt);
             }
         });
 
         limparLog.setText("Limpar LOG");
+        limparLog.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limparLogActionPerformed(evt);
+            }
+        });
 
         usuariosOnline.setText("Usuários Online");
+        usuariosOnline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usuariosOnlineActionPerformed(evt);
+            }
+        });
 
         encerrarServidor.setText("Encerar Servidor");
         encerrarServidor.addActionListener(new java.awt.event.ActionListener() {
@@ -114,7 +212,7 @@ public class ServerView extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtPorta, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(iniciarServidor)))
+                        .addComponent(btnIniciarServidor)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -124,7 +222,7 @@ public class ServerView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(iniciarServidor))
+                    .addComponent(btnIniciarServidor))
                 .addGap(37, 37, 37)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -147,18 +245,23 @@ public class ServerView extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPortaActionPerformed
 
-    private void iniciarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iniciarServidorActionPerformed
+    private void btnIniciarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarServidorActionPerformed
         // TODO add your handling code here:
-        if(txtPorta.getText().length() != 4) {
+        if (txtPorta.getText().length() != 4) {
             JOptionPane.showMessageDialog(null, "A Porta precisa ter 4 numeros", "Erro", JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
-        
-    }//GEN-LAST:event_iniciarServidorActionPerformed
+        final int PORTA = Integer.parseInt(txtPorta.getText());
+        Thread server = new Thread(new Server());
+        server.start();
+        txtPorta.setEnabled(false);
+        btnIniciarServidor.setEnabled(false);
+    }//GEN-LAST:event_btnIniciarServidorActionPerformed
 
     private void txtPortaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPortaKeyTyped
         // TODO add your handling code here:
-        if (Character.isLetter(evt.getKeyChar()) ||
-            txtPorta.getText().length() == 4) {
+        if (Character.isLetter(evt.getKeyChar())
+                || txtPorta.getText().length() == 4) {
             evt.consume();
         }
     }//GEN-LAST:event_txtPortaKeyTyped
@@ -167,9 +270,26 @@ public class ServerView extends javax.swing.JFrame {
         // TODO add your handling code here:
         evt.consume();
     }//GEN-LAST:event_txtAreaLogKeyTyped
+    private void usuariosOnlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usuariosOnlineActionPerformed
+        // TODO add your handling code here:
+        if (!users.isEmpty()) {
+            for (Cliente cli : users) {
+                txtAreaLog.append(cli.usuario + "\n");
+            }
+        } else {
+            txtAreaLog.append("Não há usuários online\n");
+        }
+
+    }//GEN-LAST:event_usuariosOnlineActionPerformed
+
+    private void limparLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limparLogActionPerformed
+        // TODO add your handling code here:
+        txtAreaLog.setText("");
+    }//GEN-LAST:event_limparLogActionPerformed
 
     private void encerrarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encerrarServidorActionPerformed
-        System.exit(0);
+        // TODO add your handling code here:
+	System.exit(0);
     }//GEN-LAST:event_encerrarServidorActionPerformed
 
     /**
@@ -208,8 +328,8 @@ public class ServerView extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnIniciarServidor;
     private javax.swing.JButton encerrarServidor;
-    private javax.swing.JButton iniciarServidor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
