@@ -7,7 +7,7 @@ package dao;
 
 /**
  *
- * @author jorge
+ * @author jorge/walber
  */
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -26,17 +26,17 @@ public class LoginDAO {
         JSONParser parser = new JSONParser();
         String usuario = "";
         String senha = "";
-        boolean ret = false;
 
         try {
             Object obj = parser.parse(new FileReader(JSON_END));
             JSONArray loginJSON = (JSONArray) obj;
-            for(int i=0;i<loginJSON.size();i++){
-                JSONObject j = (JSONObject)loginJSON.get(i);
+            for (int i = 0; i < loginJSON.size(); i++) {
+                JSONObject j = (JSONObject) loginJSON.get(i);
                 usuario = j.get("login").toString();
                 senha = j.get("senha").toString();
-                if(usuario.equals(pUsuario) && senha.equals(pSenha))
+                if (usuario.equals(pUsuario) && senha.equals(pSenha)) {
                     return true;
+                }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado.");
