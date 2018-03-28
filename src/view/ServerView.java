@@ -104,14 +104,13 @@ public class ServerView extends javax.swing.JFrame {
     /**
      * Creates new form ServerView
      */
-    public ServerView(int porta) {
+    public ServerView() {
         initComponents();
-        txtPorta.setText(""+porta);
     }
 
-    private ServerView() {
+    /*private ServerView() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    }*/
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -251,7 +250,7 @@ public class ServerView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "A Porta precisa ter 4 numeros", "Erro", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        final int PORTA = Integer.parseInt(txtPorta.getText());
+        
         Thread server = new Thread(new Server());
         server.start();
         txtPorta.setEnabled(false);
