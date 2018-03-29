@@ -20,8 +20,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        final int PORTA = (args.length > 0) ? Integer.parseInt(args[0]) : 1234;
-        JTextField username = new JTextField();
+        /*JTextField username = new JTextField();
         JTextField password = new JPasswordField();
         Object[] message = {
         "Username:", username,
@@ -37,8 +36,8 @@ public class Main {
             if(option == JOptionPane.OK_OPTION)
                 if(LoginDAO.verificarCredenciais(login, senha)){
                     option = JOptionPane.CANCEL_OPTION;
-                    ServerView serverView = new ServerView();
-                    serverView.setVisible(true);
+                    */ServerView serverView = new ServerView();
+                    serverView.setVisible(true);/*
                 }
                 else{
                     System.out.println("Login ou senha inválidos");
@@ -46,7 +45,7 @@ public class Main {
             else{
                 option = JOptionPane.CANCEL_OPTION;
             }
-        }
+        }*/
     }
     
 }

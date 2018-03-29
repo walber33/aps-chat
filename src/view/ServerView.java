@@ -51,9 +51,14 @@ public class ServerView extends javax.swing.JFrame {
                         Thread client = new Thread(new Cliente(usuario, cli, in, out));
                         client.start();
                     }
+                    else {
+                        txtAreaLog.append("Tentativa de login inválido: Usuário ou senha inválidos");
+                        out.print("Login recusado. Usuário ou senha inválidos.");
+                        cli.close();
+                    }
                 }
             } catch (IOException ex) {
-                Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex.getCause());
             } finally {
                 try {
                     in.close();
@@ -87,7 +92,6 @@ public class ServerView extends javax.swing.JFrame {
             while (true) {
                 try {
                     mensagem = in.readLine();
-                    //out.println("Mensagem do servidor");
                     System.out.println(mensagem);
                     for(Cliente cli : users) {
                         if (cli != this) {
@@ -107,10 +111,6 @@ public class ServerView extends javax.swing.JFrame {
     public ServerView() {
         initComponents();
     }
-
-    /*private ServerView() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }*/
 
     /**
      * This method is called from within the constructor to initialize the form.
