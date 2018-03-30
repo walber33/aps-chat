@@ -20,9 +20,9 @@ import java.util.logging.Logger;
 public class ServerView extends javax.swing.JFrame {
 
     private ArrayList<Cliente> users = new ArrayList<>();
-    
+
     public class Server implements Runnable {
-        
+
         String usuario, senha;
 
         @Override
@@ -32,9 +32,9 @@ public class ServerView extends javax.swing.JFrame {
             BufferedReader in = null;
             PrintStream out = null;
             ServerSocket ss = null;
-            
+
             txtAreaLog.append("Escutando porta " + porta + "...\n");
-            
+
             try {
                 ss = new ServerSocket(porta);
                 while (true) {
@@ -42,18 +42,16 @@ public class ServerView extends javax.swing.JFrame {
                     txtAreaLog.append("Nova conexão\n");
                     in = new BufferedReader(new InputStreamReader(cli.getInputStream()));
                     out = new PrintStream(cli.getOutputStream());
-
                     usuario = in.readLine();
                     senha = in.readLine();
-                    
+
                     if (LoginDAO.verificarCredenciais(usuario, senha)) {
                         txtAreaLog.append("Usuario " + usuario + " logado\n");
                         Thread client = new Thread(new Cliente(usuario, cli, in, out));
                         client.start();
-                    }
-                    else {
-                        txtAreaLog.append("Tentativa de login inválido: Usuário ou senha inválidos");
-                        out.print("Login recusado. Usuário ou senha inválidos.");
+                    } else {
+                        txtAreaLog.append("Tentativa de login inválido: Usuário ou senha inválidos\n");
+                        out.println("Login recusado. Usuário ou senha inválidos.");
                         cli.close();
                     }
                 }
@@ -66,11 +64,11 @@ public class ServerView extends javax.swing.JFrame {
                     cli.close();
                     ss.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(ex.getCause());
                 }
             }
         }
-        
+
     }
 
     public class Cliente implements Runnable {
@@ -78,29 +76,27 @@ public class ServerView extends javax.swing.JFrame {
         String usuario, senha, mensagem;
         BufferedReader in = null;
         PrintStream out = null;
-        Socket cli = null;
+        Socket sck = null;
 
-        public Cliente(String usuario, Socket cli, BufferedReader in, PrintStream out) {
+        public Cliente(String usuario, Socket sck, BufferedReader in, PrintStream out) {
             this.usuario = usuario;
-            this.cli = cli;
+            this.sck = sck;
             this.in = in;
             this.out = out;
             users.add(this);
         }
 
         public void run() {
-            while (true) {
-                try {
-                    mensagem = in.readLine();
-                    System.out.println(mensagem);
-                    for(Cliente cli : users) {
+            try {
+                while ((mensagem = in.readLine()) != "sair") {
+                    for (Cliente cli : users) {
                         if (cli != this) {
                             cli.out.println(mensagem);
                         }
                     }
-                } catch (IOException ex) {
-                    Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } catch (IOException ex) {
+                System.out.println(ex.getCause());
             }
         }
     }
@@ -250,7 +246,7 @@ public class ServerView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "A Porta precisa ter 4 numeros", "Erro", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        
+
         Thread server = new Thread(new Server());
         server.start();
         txtPorta.setEnabled(false);
@@ -287,8 +283,26 @@ public class ServerView extends javax.swing.JFrame {
     }//GEN-LAST:event_limparLogActionPerformed
 
     private void encerrarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encerrarServidorActionPerformed
-        // TODO add your handling code here:
-	System.exit(0);
+        txtAreaLog.append("Encerrando servidor...\n");
+        for (Cliente cli : users) {
+            cli.out.println("O servidor será encerrado e todos os usuários serão desconectados...");
+        }
+        
+        /*try {
+            Thread.sleep(1000 * 5);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.getCause());
+        }*/
+        
+        for (Cliente cli : users) {
+            try {
+                cli.out.println("Desconectado");
+                cli.sck.close();
+                users.remove(cli);
+            } catch (IOException ex) {
+                System.out.println(ex.getCause());
+            }
+        }
     }//GEN-LAST:event_encerrarServidorActionPerformed
 
     /**
