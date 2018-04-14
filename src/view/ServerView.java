@@ -5,102 +5,59 @@
  */
 package view;
 
-import dao.LoginDAO;
+import chatambiental.ClienteThread;
+import chatambiental.ServidorThread;
+import static chatambiental.ServidorThread.users;
 import javax.swing.JOptionPane;
 import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author jorge
  */
 public class ServerView extends javax.swing.JFrame {
-
-    private ArrayList<Cliente> users = new ArrayList<>();
-
-    public class Server implements Runnable {
-
-        String usuario, senha;
-
-        @Override
-        public void run() {
-            int porta = Integer.parseInt(txtPorta.getText());
-            Socket cli = null;
-            BufferedReader in = null;
-            PrintStream out = null;
-            ServerSocket ss = null;
-
-            txtAreaLog.append("Escutando porta " + porta + "...\n");
-
-            try {
-                ss = new ServerSocket(porta);
-                while (true) {
-                    cli = ss.accept();
-                    txtAreaLog.append("Nova conexão\n");
-                    in = new BufferedReader(new InputStreamReader(cli.getInputStream()));
-                    out = new PrintStream(cli.getOutputStream());
-                    usuario = in.readLine();
-                    senha = in.readLine();
-
-                    if (LoginDAO.verificarCredenciais(usuario, senha)) {
-                        txtAreaLog.append("Usuario " + usuario + " logado\n");
-                        Thread client = new Thread(new Cliente(usuario, cli, in, out));
-                        client.start();
-                    } else {
-                        txtAreaLog.append("Tentativa de login inválido: Usuário ou senha inválidos\n");
-                        out.println("Login recusado. Usuário ou senha inválidos.");
-                        cli.close();
+    ServidorThread servidor = null;
+    public static void log(String usuario, String mensagem, int tipo) {
+        String novoRegistro = "";
+        switch (tipo) {
+            case 0:
+                novoRegistro = "Nova conexão\n";
+                break;
+            case 1:
+                novoRegistro = "Usuario " + usuario + " logado\n";
+                break;
+            case 2:
+                novoRegistro = "Usuario " + usuario + " desconectado\n:";
+                break;
+            case 3:
+                novoRegistro = "Chat: " + usuario + " :" + mensagem + "\n";
+                break;
+            case 4:
+                if (users != null) {
+                    for (ClienteThread cli : users) {
+                        novoRegistro += "Usuario " + cli.usuario + "\n";
                     }
+                } else {
+                    novoRegistro = "Não há usuários online\n";
                 }
-            } catch (IOException ex) {
-                System.out.println(ex.getCause());
-            } finally {
-                try {
-                    in.close();
-                    out.close();
-                    cli.close();
-                    ss.close();
-                } catch (IOException ex) {
-                    System.out.println(ex.getCause());
-                }
-            }
+                break;
+            case 5:
+                novoRegistro = "Tentativa de login inválido: Usuário ou senha inválidos\n";
+                break;
+            case 6:
+                novoRegistro = "Escutando porta " + mensagem + "...\n";
+                break;
+            case 7:
+                novoRegistro = "Todos os usuarios desconectados\n";
+                break;
+            case 8:
+                novoRegistro = "Servidor encerrado\n";
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo inválido");
         }
-
+        ta.append(novoRegistro);
     }
-
-    public class Cliente implements Runnable {
-
-        String usuario, senha, mensagem;
-        BufferedReader in = null;
-        PrintStream out = null;
-        Socket sck = null;
-
-        public Cliente(String usuario, Socket sck, BufferedReader in, PrintStream out) {
-            this.usuario = usuario;
-            this.sck = sck;
-            this.in = in;
-            this.out = out;
-            users.add(this);
-        }
-
-        public void run() {
-            try {
-                while ((mensagem = in.readLine()) != "sair") {
-                    for (Cliente cli : users) {
-                        if (cli != this) {
-                            cli.out.println(mensagem);
-                        }
-                    }
-                }
-            } catch (IOException ex) {
-                System.out.println(ex.getCause());
-            }
-        }
-    }
-
+    
     /**
      * Creates new form ServerView
      */
@@ -119,7 +76,7 @@ public class ServerView extends javax.swing.JFrame {
 
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        txtAreaLog = new javax.swing.JTextArea();
+        ta = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtPorta = new javax.swing.JTextField();
@@ -133,14 +90,14 @@ public class ServerView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        txtAreaLog.setColumns(20);
-        txtAreaLog.setRows(5);
-        txtAreaLog.addKeyListener(new java.awt.event.KeyAdapter() {
+        ta.setColumns(20);
+        ta.setRows(5);
+        ta.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtAreaLogKeyTyped(evt);
+                taKeyTyped(evt);
             }
         });
-        jScrollPane1.setViewportView(txtAreaLog);
+        jScrollPane1.setViewportView(ta);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("LOG:");
@@ -246,63 +203,40 @@ public class ServerView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "A Porta precisa ter 4 numeros", "Erro", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-
-        Thread server = new Thread(new Server());
-        server.start();
+        int porta = Integer.parseInt(txtPorta.getText());
+        servidor = new ServidorThread(porta);
+        servidor.start();
+        log("", Integer.toString(porta), 6);
         txtPorta.setEnabled(false);
         btnIniciarServidor.setEnabled(false);
     }//GEN-LAST:event_btnIniciarServidorActionPerformed
 
     private void txtPortaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPortaKeyTyped
         // TODO add your handling code here:
-        if (Character.isLetter(evt.getKeyChar())
-                || txtPorta.getText().length() == 4) {
+        if (Character.isLetter(evt.getKeyChar()) || txtPorta.getText().length() == 4) {
             evt.consume();
         }
     }//GEN-LAST:event_txtPortaKeyTyped
 
-    private void txtAreaLogKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAreaLogKeyTyped
+    private void taKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_taKeyTyped
         // TODO add your handling code here:
         evt.consume();
-    }//GEN-LAST:event_txtAreaLogKeyTyped
+    }//GEN-LAST:event_taKeyTyped
     private void usuariosOnlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usuariosOnlineActionPerformed
         // TODO add your handling code here:
-        if (!users.isEmpty()) {
-            for (Cliente cli : users) {
-                txtAreaLog.append(cli.usuario + "\n");
-            }
-        } else {
-            txtAreaLog.append("Não há usuários online\n");
-        }
-
+            log("", "", 4);
     }//GEN-LAST:event_usuariosOnlineActionPerformed
 
     private void limparLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limparLogActionPerformed
         // TODO add your handling code here:
-        txtAreaLog.setText("");
+        ta.setText("");
     }//GEN-LAST:event_limparLogActionPerformed
 
     private void encerrarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encerrarServidorActionPerformed
-        txtAreaLog.append("Encerrando servidor...\n");
-        for (Cliente cli : users) {
-            cli.out.println("O servidor será encerrado e todos os usuários serão desconectados...");
-        }
-        
-        /*try {
-            Thread.sleep(1000 * 5);
-        } catch (InterruptedException ex) {
-            System.out.println(ex.getCause());
-        }*/
-        
-        for (Cliente cli : users) {
-            try {
-                cli.out.println("Desconectado");
-                cli.sck.close();
-                users.remove(cli);
-            } catch (IOException ex) {
-                System.out.println(ex.getCause());
-            }
-        }
+        servidor.msgParaTodos("O Servidor sera encerrado. Todos os usuarios serao desconectados.\n");
+        servidor.encerrarServidor();
+        txtPorta.setEnabled(true);
+        btnIniciarServidor.setEnabled(true);
     }//GEN-LAST:event_encerrarServidorActionPerformed
 
     /**
@@ -348,7 +282,7 @@ public class ServerView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton limparLog;
-    private javax.swing.JTextArea txtAreaLog;
+    private static javax.swing.JTextArea ta;
     private javax.swing.JTextField txtPorta;
     private javax.swing.JButton usuariosOnline;
     // End of variables declaration//GEN-END:variables
