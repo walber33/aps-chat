@@ -42,7 +42,6 @@ public class ClientMain {
            new Thread(new resposta()).start(); 
             
             while(!sk.isClosed()){
-                System.out.println(in.readLine());
                 if(in.readLine().equals("DC")){
                     sk.close();
                     in.close();
