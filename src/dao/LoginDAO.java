@@ -12,15 +12,24 @@ package dao;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+import org.mindrot.jbcrypt.BCrypt;
 public class LoginDAO {
-
     private static final String JSON_END = "json\\login.json";
-
+    public static String gerarHash(String senhaFraca){
+        String senhaForte = BCrypt.hashpw(senhaFraca,BCrypt.gensalt(12));
+        return senhaForte;
+    }
+     public static boolean checarHash(String senhaDigitada, String senhaBanco){
+        boolean match = BCrypt.checkpw(senhaDigitada , senhaBanco);
+        return match;
+    }
+    
     public static boolean verificarCredenciais(String pUsuario, String pSenha) {
 
         JSONParser parser = new JSONParser();
@@ -34,7 +43,7 @@ public class LoginDAO {
                 JSONObject j = (JSONObject) loginJSON.get(i);
                 usuario = j.get("login").toString();
                 senha = j.get("senha").toString();
-                if (usuario.equals(pUsuario) && senha.equals(pSenha)) {
+                if ( usuario.equals(pUsuario) && checarHash(pSenha,senha) ) {
                     return true;
                 }
             }

@@ -26,6 +26,7 @@ public class ServidorThread extends Thread {
     private int porta;
     public static ArrayList<ClienteThread> users;
     public static boolean rodando = true;
+    
 
     public ServidorThread(int porta) {
         this.porta = porta;

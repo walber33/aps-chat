@@ -6,6 +6,7 @@
 package chatambiental;
 
 import dao.LoginDAO;
+import java.util.Scanner;
 import javax.swing.JOptionPane;
 import view.ServerView;
 import javax.swing.JPasswordField;
