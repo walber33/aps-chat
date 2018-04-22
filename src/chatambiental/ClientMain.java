@@ -1,76 +1,52 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package chatambiental;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author walber
- */
+import java.io.*;
+import java.net.*;
 
+class ClientMain {
 
-public class ClientMain {
-    static String usuario;
-    static String senha;
-    static Socket sk;
+    static Socket cli;
+    static PrintStream out;
     static BufferedReader in;
     static BufferedReader inputline;
-    static PrintStream out;
-    
-    public static void main(String[] args) throws IOException{
-        try{
-            usuario = "chataps";
-            senha = "chataps";
-            sk = new Socket("localhost",1234);
-            in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
+
+    public static void main(String args[]) {
+        try {
+            cli = new Socket("localhost", 2222);
+            out = new PrintStream(cli.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(cli.getInputStream()));
             inputline = new BufferedReader(new InputStreamReader(System.in));
-            out = new PrintStream(sk.getOutputStream());
-            out.println(usuario);
-            out.println(senha);
-            
-           new Thread(new resposta()).start(); 
-            
-            while(!sk.isClosed()){
-                if(in.readLine().equals("DC")){
-                    sk.close();
-                    in.close();
-                    out.close();
-                    inputline.close();
-                }
-                else{
-                    out.println(inputline.readLine());
-                }
+
+            new Thread(new resposta()).start();
+
+            while (true) {
+                out.println(inputline.readLine());
             }
-        }catch(Exception ex){
-            System.err.println(ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
     }
-    public static class resposta implements Runnable{
+
+    public static class resposta implements Runnable {
+
         String response;
-        public void run(){
+
+        public void run() {
             try {
-                while(!sk.isClosed()){
-                    if((response = inputline.readLine()) != null)
+                while ((response = in.readLine()) != null) {
+                    if (response.equalsIgnoreCase("dc")) {
+                        out.close();
+                        in.close();
+                        inputline.close();
+                        cli.close();
+                    } else {
                         System.out.println(response);
+                    }
                 }
             } catch (IOException ex) {
-                System.out.print("erro\n"+ ex);
+                ex.printStackTrace();
             }
-        
         }
-        
-    
     }
 }
