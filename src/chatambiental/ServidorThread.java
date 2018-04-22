@@ -6,18 +6,10 @@
 package chatambiental;
 
 import dao.LoginDAO;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JTextArea;
 import view.ServerView;
-import static view.ServerView.log;
 
 /**
  *
@@ -26,10 +18,11 @@ import static view.ServerView.log;
 public class ServidorThread extends Thread {
 
     private String usuario, senha;
-    private Socket novoCli = null;
+    private Socket sck = null;
     private BufferedReader in = null;
     private PrintStream out = null;
     private ServerSocket ss = null;
+    private ClienteThread novoCli = null;
     private int porta;
     public static ArrayList<ClienteThread> users;
     public static boolean rodando = true;
@@ -45,23 +38,27 @@ public class ServidorThread extends Thread {
         }
     }
 
-    public void dcTodosUsuarios() {
+    public static void msgParaTodos(String mensagem, ClienteThread sender) {
         for (ClienteThread cli : users) {
-            try {
-                cli.out.println("Desconectado");
-                cli.in.close();
-                cli.out.close();
-                cli.sck.close();
-                users.remove(cli);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Não conseguiu encerra a sessão com " + cli.usuario);
+            if (cli != sender) {
+                cli.out.println(mensagem);
             }
         }
     }
 
+    private boolean estaLogado(String pUsuario) {
+        boolean ret = false;
+        for (ClienteThread cli : users) {
+            if (cli.usuario.equals(pUsuario)) {
+                ret = true;
+            }
+        }
+        System.out.println(ret);
+        return ret;
+    }
+
     public void encerrarServidor() {
-        dcTodosUsuarios();
+        msgParaTodos("DC");
         try {
             ss.close();
             in.close();
@@ -76,43 +73,42 @@ public class ServidorThread extends Thread {
         try {
             ss = new ServerSocket(porta);
             while (true) {
-                novoCli = ss.accept();
-                log("", "", 0);
+                sck = ss.accept();
+                ServerView.log("Nova conexão\n");
 
-                in = new BufferedReader(new InputStreamReader(novoCli.getInputStream()));
-                out = new PrintStream(novoCli.getOutputStream());
+                in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
+                out = new PrintStream(sck.getOutputStream());
                 usuario = in.readLine();
                 senha = in.readLine();
 
                 if (LoginDAO.verificarCredenciais(usuario, senha)) {
-                    log(usuario, "", 1);
-                    out.println("Conectado ao servidor");
-                    Thread threadNovoCliente = new Thread(new ClienteThread(usuario, novoCli, in, out));
-                    for (ClienteThread cliente : users) {
-                        if (cliente.sck != novoCli) {
-                            cliente.out.println("Usuario " + usuario + " se conectou");
-                        }
+                    if (!estaLogado(usuario)) {
+                        ServerView.log("Usuario " + usuario + " conectado\n");
+                        out.println("Conectado ao servidor");
+                        novoCli = new ClienteThread(usuario, sck, in, out);
+                        new Thread(novoCli).start();
+                        msgParaTodos("Usuario " + usuario + " se conectou", novoCli);
+                    } else {
+                        ServerView.log("Tentiva de login recusado: usuário já está logado\n");
+                        out.println("Usuario já está logado");
                     }
-                    threadNovoCliente.start();
                 } else {
-                    log("", "", 5);
-                    out.println("Login recusado. Usuário ou senha inválidos.");
-
-                    in.close();
-                    out.close();
-                    novoCli.close();
+                    ServerView.log("Tentiva de login recusado: usuário ou senha inválidos\n");
+                    out.println("Usuario ou senha inválidos");
                 }
             }
         } catch (IOException ex) {
-            System.out.println(ex.getCause());
+            System.out.println("Erro no servidor");
+            ex.printStackTrace();
         } finally {
             try {
                 in.close();
                 out.close();
-                novoCli.close();
+                sck.close();
                 ss.close();
             } catch (IOException ex) {
-                System.out.println(ex.getCause());
+                System.out.println("Erro ao finalizar o servidor");
+                ex.printStackTrace();
             }
         }
     }

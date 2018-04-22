@@ -9,55 +9,32 @@ import chatambiental.ClienteThread;
 import chatambiental.ServidorThread;
 import static chatambiental.ServidorThread.users;
 import javax.swing.JOptionPane;
-import java.io.*;
+
 /**
  *
  * @author jorge
  */
 public class ServerView extends javax.swing.JFrame {
+
     ServidorThread servidor = null;
-    public static void log(String usuario, String mensagem, int tipo) {
-        String novoRegistro = "";
-        switch (tipo) {
-            case 0:
-                novoRegistro = "Nova conexão\n";
-                break;
-            case 1:
-                novoRegistro = "Usuario " + usuario + " logado\n";
-                break;
-            case 2:
-                novoRegistro = "Usuario " + usuario + " desconectado\n:";
-                break;
-            case 3:
-                novoRegistro = "Chat: " + usuario + " :" + mensagem + "\n";
-                break;
-            case 4:
-                if (users != null) {
-                    for (ClienteThread cli : users) {
-                        novoRegistro += "Usuario " + cli.usuario + "\n";
-                    }
-                } else {
-                    novoRegistro = "Não há usuários online\n";
-                }
-                break;
-            case 5:
-                novoRegistro = "Tentativa de login inválido: Usuário ou senha inválidos\n";
-                break;
-            case 6:
-                novoRegistro = "Escutando porta " + mensagem + "...\n";
-                break;
-            case 7:
-                novoRegistro = "Todos os usuarios desconectados\n";
-                break;
-            case 8:
-                novoRegistro = "Servidor encerrado\n";
-                break;
-            default:
-                throw new IllegalArgumentException("Tipo inválido");
+
+    public static void log(String mensagem) {
+        ta.append(mensagem);
+    }
+
+    public static void logUsuariosOnline() {
+        String usuariosOnline = "";
+        if (users != null) {
+            for (ClienteThread cli : users) {
+                usuariosOnline += "Usuario " + cli.usuario + "\n";
+            }
+        } else {
+            usuariosOnline = "Não há usuários online\n";
         }
-        ta.append(novoRegistro);
+        ta.append(usuariosOnline);
     }
     
+
     /**
      * Creates new form ServerView
      */
@@ -206,7 +183,7 @@ public class ServerView extends javax.swing.JFrame {
         int porta = Integer.parseInt(txtPorta.getText());
         servidor = new ServidorThread(porta);
         servidor.start();
-        log("", Integer.toString(porta), 6);
+        log("Escutando porta: " + Integer.toString(porta) + "\n");
         txtPorta.setEnabled(false);
         btnIniciarServidor.setEnabled(false);
     }//GEN-LAST:event_btnIniciarServidorActionPerformed
@@ -224,7 +201,7 @@ public class ServerView extends javax.swing.JFrame {
     }//GEN-LAST:event_taKeyTyped
     private void usuariosOnlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usuariosOnlineActionPerformed
         // TODO add your handling code here:
-            log("", "", 4);
+        logUsuariosOnline();
     }//GEN-LAST:event_usuariosOnlineActionPerformed
 
     private void limparLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limparLogActionPerformed
@@ -233,7 +210,7 @@ public class ServerView extends javax.swing.JFrame {
     }//GEN-LAST:event_limparLogActionPerformed
 
     private void encerrarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encerrarServidorActionPerformed
-        servidor.msgParaTodos("O Servidor sera encerrado. Todos os usuarios serao desconectados.\n");
+        //servidor.msgParaTodos("O Servidor sera encerrado. Todos os usuarios serao desconectados.\n");
         servidor.encerrarServidor();
         txtPorta.setEnabled(true);
         btnIniciarServidor.setEnabled(true);

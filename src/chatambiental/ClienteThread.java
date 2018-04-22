@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import view.ServerView;
-import static chatambiental.ServidorThread.users;
-import static view.ServerView.log;
+import chatambiental.ServidorThread;
+import view.ServerView;
 
 /**
  *
@@ -29,33 +29,28 @@ public class ClienteThread implements Runnable {
         this.sck = sck;
         this.in = in;
         this.out = out;
-        System.out.println(this.toString());
-        users.add(this);
+        ServidorThread.users.add(this);
     }
 
     public void run() {
         try {
-            while ((mensagem = in.readLine()) != null && !sck.isClosed()) {
-                for (ClienteThread cli : users) {
-                    if (cli != this) {
-                        cli.out.println(mensagem);
-                    }
-                }
-                log(usuario, mensagem, 3);
+            while ((mensagem = this.in.readLine()) != null) {
+                ServidorThread.msgParaTodos(mensagem, this);
+                ServerView.log("Chat:" + this.usuario + ":" + this.mensagem + "\n");
             }
         } catch (IOException ex) {
-            System.out.println("Não conseguiu ler do Socket\n");
+            System.out.println("Não conseguiu ler do Socket do Cliente " + this.usuario);
         } finally {
             try {
-                in.close();
-                out.close();
-                sck.close();
+                this.in.close();
+                this.out.close();
+                this.sck.close();
             } catch (IOException ex) {
                 System.out.println("Não consgeuiu fechar a conexão\n");
             }
-            
+
             ServidorThread.users.remove(this);
-            ServerView.log(usuario, "", 2);
+            ServerView.log("Usuario " + this.usuario + " desconectado\n");
             ServidorThread.msgParaTodos("Usuario " + usuario + " desconectou\n");
         }
     }
