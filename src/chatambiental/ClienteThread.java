@@ -76,7 +76,7 @@ public class ClienteThread implements Runnable {
 
         try {
             while ((mensagem = this.in.readLine()) != null) {
-                ServidorThread.msgParaTodos(mensagem, this);
+                ServidorThread.msgParaTodos(this.usuario+": "+mensagem, this);
                 ServerView.log("Chat:" + this.usuario + ":" + this.mensagem + "\n");
             }
         } catch (IOException ex) {
