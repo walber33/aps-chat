@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/chatambiental/ClienteThread.java</file>
+            <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/chatambiental/ClientInput.java</file>
             <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/chatambiental/ServidorThread.java</file>
+            <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/chatambiental/ClienteOutput.java</file>
             <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/view/ServerView.java</file>
+            <file>file:/C:/Users/jorge/Desktop/chatambiental/aps-chat/src/chatambiental/Main.java</file>
         </group>
     </open-files>
 </project-private>

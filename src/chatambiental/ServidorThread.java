@@ -21,25 +21,25 @@ public class ServidorThread extends Thread {
     private BufferedReader in = null;
     private PrintStream out = null;
     private ServerSocket ss = null;
-    private ClienteThread novoCli = null;
+    private ClienteOutput novoCli = null;
     private int porta;
-    public static ArrayList<ClienteThread> users;
+    public static ArrayList<ClienteOutput> users;
     public static boolean rodando = true;
     
 
     public ServidorThread(int porta) {
         this.porta = porta;
-        users = new ArrayList<ClienteThread>();
+        users = new ArrayList<ClienteOutput>();
     }
 
     public static void msgParaTodos(String mensagem) {
-        for (ClienteThread cli : users) {
+        for (ClienteOutput cli : users) {
             cli.out.println(mensagem);
         }
     }
 
-    public static void msgParaTodos(String mensagem, ClienteThread sender) {
-        for (ClienteThread cli : users) {
+    public static void msgParaTodos(String mensagem, ClienteOutput sender) {
+        for (ClienteOutput cli : users) {
             if (cli != sender) {
                 cli.out.println(mensagem);
             }
@@ -48,7 +48,7 @@ public class ServidorThread extends Thread {
 
     public static boolean estaLogado(String pUsuario) {
         boolean ret = false;
-        for (ClienteThread cli : users) {
+        for (ClienteOutput cli : users) {
             if (cli.usuario.equals(pUsuario)) {
                 ret = true;
             }
@@ -89,7 +89,7 @@ public class ServidorThread extends Thread {
                 in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
                 out = new PrintStream(sck.getOutputStream());
                 
-                novoCli = new ClienteThread(sck, in, out);
+                novoCli = new ClienteOutput(sck, in, out);
                 new Thread(novoCli).start();
             }
         } catch (IOException ex) {

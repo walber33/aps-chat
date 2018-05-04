@@ -5,7 +5,7 @@
  */
 package view;
 
-import chatambiental.ClienteThread;
+import chatambiental.ClienteOutput;
 import chatambiental.ServidorThread;
 import static chatambiental.ServidorThread.users;
 import javax.swing.JOptionPane;
@@ -25,7 +25,7 @@ public class ServerView extends javax.swing.JFrame {
     public static void logUsuariosOnline() {
         String usuariosOnline = "";
         if (users != null) {
-            for (ClienteThread cli : users) {
+            for (ClienteOutput cli : users) {
                 usuariosOnline += "Usuario " + cli.usuario + "\n";
             }
         } else {
@@ -40,6 +40,7 @@ public class ServerView extends javax.swing.JFrame {
      */
     public ServerView() {
         initComponents();
+        ta.setEditable(false);
     }
 
     /**
@@ -69,11 +70,6 @@ public class ServerView extends javax.swing.JFrame {
 
         ta.setColumns(20);
         ta.setRows(5);
-        ta.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                taKeyTyped(evt);
-            }
-        });
         jScrollPane1.setViewportView(ta);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -195,10 +191,6 @@ public class ServerView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_txtPortaKeyTyped
 
-    private void taKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_taKeyTyped
-        // TODO add your handling code here:
-        evt.consume();
-    }//GEN-LAST:event_taKeyTyped
     private void usuariosOnlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usuariosOnlineActionPerformed
         // TODO add your handling code here:
         logUsuariosOnline();

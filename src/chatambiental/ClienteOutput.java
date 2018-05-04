@@ -12,13 +12,12 @@ import java.net.Socket;
 import static chatambiental.ServidorThread.msgParaTodos;
 import dao.LoginDAO;
 import view.ServerView;
-import chatambiental.ServidorThread;
 
 /**
  *
  * @author jorge
  */
-public class ClienteThread implements Runnable {
+public class ClienteOutput implements Runnable {
 
     public String usuario, mensagem;
     private String senha;
@@ -27,7 +26,7 @@ public class ClienteThread implements Runnable {
     public Socket sck = null;
     private boolean logado = false;
 
-    public ClienteThread(Socket sck, BufferedReader in, PrintStream out) {
+    public ClienteOutput(Socket sck, BufferedReader in, PrintStream out) {
         this.sck = sck;
         this.in = in;
         this.out = out;

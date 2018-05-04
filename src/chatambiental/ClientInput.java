@@ -4,7 +4,7 @@ package chatambiental;
 import java.io.*;
 import java.net.*;
 
-class ClientMain {
+class ClientInput {
 
     static Socket cli;
     static PrintStream out;
