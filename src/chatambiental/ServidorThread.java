@@ -5,12 +5,9 @@
  */
 package chatambiental;
 
-import dao.LoginDAO;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import view.ServerView;
 
 /**
