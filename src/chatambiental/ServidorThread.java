@@ -44,12 +44,12 @@ public class ServidorThread extends Thread {
 
     public static void msgParaTodos(String mensagem, ClienteInput sender) {
         for (ClienteInput cli : users) {
-            Mensagem msg = new Mensagem(mensagem);
-            byte[] b = msg.mensagem.getBytes();
-            
             if (cli != sender) {
                 try {
-                    cli.oos.write(b);
+                    Mensagem msg = new Mensagem(mensagem);
+                    cli.oos.writeObject(msg);
+                    cli.oos.flush();
+                    cli.oos.close();
                 } catch (IOException ex) {
                     Logger.getLogger(ServidorThread.class.getName()).log(Level.SEVERE, null, ex);
                 }

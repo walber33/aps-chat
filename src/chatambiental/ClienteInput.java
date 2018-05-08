@@ -12,11 +12,13 @@ import java.net.Socket;
 import static chatambiental.ServidorThread.msgParaTodos;
 import dao.LoginDAO;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import view.ServerView;
 
 /**
@@ -34,6 +36,7 @@ public class ClienteInput implements Runnable {
     public Socket sck = null;
     public ObjectInputStream ois;
     public ObjectOutputStream oos;
+    public ByteArrayOutputStream bos;
     public Mensagem input;
     private boolean logado = false;
 
@@ -107,14 +110,15 @@ public class ClienteInput implements Runnable {
             try {
                 input = (Mensagem) ois.readObject();
                 //input.toString();
-                usuario = input.mensagem;
-                input = (Mensagem) ois.readObject();
-                senha = input.mensagem;
+                String[] credenciais = new String[2];
+                credenciais = input.mensagem.split(":");
+                usuario = credenciais[0];
+                senha = credenciais[1];
                 if (LoginDAO.verificarCredenciais(usuario, senha)) {
                     if (!ServidorThread.estaLogado(usuario)) {
                         ServerView.log("Usuario " + usuario + " conectado\n");
-                        out.println("true");
-                        out.println("Conectado ao servidor");
+                        oos.writeObject(new Mensagem("true"));
+                        oos.writeObject(new Mensagem("Conectado ao servidor"));
                         msgParaTodos("Usuario " + usuario + " se conectou", this);
                         ServidorThread.users.add(this);
                         logado = true;
@@ -146,6 +150,7 @@ public class ClienteInput implements Runnable {
             ex.printStackTrace();
         } catch (IOException ex) {
             System.out.println("Não conseguiu ler do Socket do Cliente " + this.usuario);
+            ex.printStackTrace();
         } finally {
             fecharCliente();
             ServidorThread.users.remove(this);
