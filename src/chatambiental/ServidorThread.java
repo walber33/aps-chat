@@ -8,6 +8,8 @@ package chatambiental;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import view.ServerView;
 
 /**
@@ -21,34 +23,43 @@ public class ServidorThread extends Thread {
     private BufferedReader in = null;
     private PrintStream out = null;
     private ServerSocket ss = null;
-    private ClienteOutput novoCli = null;
+    private ClienteInput novoCli = null;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
     private int porta;
-    public static ArrayList<ClienteOutput> users;
+    public static ArrayList<ClienteInput> users;
     public static boolean rodando = true;
     
 
     public ServidorThread(int porta) {
         this.porta = porta;
-        users = new ArrayList<ClienteOutput>();
+        users = new ArrayList<ClienteInput>();
     }
 
     public static void msgParaTodos(String mensagem) {
-        for (ClienteOutput cli : users) {
+        for (ClienteInput cli : users) {
             cli.out.println(mensagem);
         }
     }
 
-    public static void msgParaTodos(String mensagem, ClienteOutput sender) {
-        for (ClienteOutput cli : users) {
+    public static void msgParaTodos(String mensagem, ClienteInput sender) {
+        for (ClienteInput cli : users) {
+            Mensagem msg = new Mensagem(mensagem);
+            byte[] b = msg.mensagem.getBytes();
+            
             if (cli != sender) {
-                cli.out.println(mensagem);
+                try {
+                    cli.oos.write(b);
+                } catch (IOException ex) {
+                    Logger.getLogger(ServidorThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
 
     public static boolean estaLogado(String pUsuario) {
         boolean ret = false;
-        for (ClienteOutput cli : users) {
+        for (ClienteInput cli : users) {
             if (cli.usuario.equals(pUsuario)) {
                 ret = true;
             }
@@ -88,8 +99,10 @@ public class ServidorThread extends Thread {
 
                 in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
                 out = new PrintStream(sck.getOutputStream());
+                ois = new ObjectInputStream(sck.getInputStream());
+                oos = new ObjectOutputStream(sck.getOutputStream());
                 
-                novoCli = new ClienteOutput(sck, in, out);
+                novoCli = new ClienteInput(sck, in, out, ois, oos);
                 new Thread(novoCli).start();
             }
         } catch (IOException ex) {

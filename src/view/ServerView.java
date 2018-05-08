@@ -5,7 +5,7 @@
  */
 package view;
 
-import chatambiental.ClienteOutput;
+import chatambiental.ClienteInput;
 import chatambiental.ServidorThread;
 import static chatambiental.ServidorThread.users;
 import javax.swing.JOptionPane;
@@ -25,7 +25,7 @@ public class ServerView extends javax.swing.JFrame {
     public static void logUsuariosOnline() {
         String usuariosOnline = "";
         if (users != null) {
-            for (ClienteOutput cli : users) {
+            for (ClienteInput cli : users) {
                 usuariosOnline += "Usuario " + cli.usuario + "\n";
             }
         } else {
