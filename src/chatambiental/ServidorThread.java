@@ -49,7 +49,7 @@ public class ServidorThread extends Thread{
                     if(f == null)
                         cli.oos.writeObject(new Mensagem(mensagem));
                     else
-                        cli.oos.writeObject(new Mensagem(bf, f, f.substring(f.lastIndexOf("."))));
+                        cli.oos.writeObject(new Mensagem(bf,sender.usuario, f, f.substring(f.lastIndexOf("."))));
                     
                     cli.oos.reset();
                     //cli.oos.close();

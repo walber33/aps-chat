@@ -132,6 +132,9 @@ public class ClienteInput implements Runnable {
                         out.println("Usuario já está logado");
                     }
                 } else {
+                    oos.writeObject(new Mensagem("false"));
+                    oos.writeObject(new Mensagem("Login ou senha incorretos"));
+                    
                     ServerView.log("Tentiva de login recusado: usuário ou senha inválidos\n");
                     out.println("false");
                     out.println("Usuario ou senha inválidos");

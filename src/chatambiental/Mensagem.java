@@ -15,6 +15,7 @@ import java.io.Serializable;
 public class Mensagem implements Serializable{
     static long serialVersionUID = 10100;
     private String extensao = "";
+    public String remetente = "";
     public byte[] arquivo = null;
     public String mensagem = "";
     private String caminho = "";
@@ -24,9 +25,10 @@ public class Mensagem implements Serializable{
         this.mensagem = pMensagem;
     }
 
-    public Mensagem(byte[] pArquivo, String pNome, String pExtensao) {
+    public Mensagem(byte[] pArquivo,String pRemetente, String pNome, String pExtensao) {
         this.nomeArquivo = pNome;
         this.arquivo = pArquivo;
+        this.remetente = pRemetente;
         setCaminho(extensao);
     }
 
