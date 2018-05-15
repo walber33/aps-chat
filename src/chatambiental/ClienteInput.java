@@ -14,6 +14,7 @@ import dao.LoginDAO;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
@@ -40,12 +41,15 @@ public class ClienteInput implements Runnable {
     public Mensagem input;
     private boolean logado = false;
 
-    public ClienteInput(Socket sck, BufferedReader in, PrintStream out, ObjectInputStream ois, ObjectOutputStream oos) {
-        this.sck = sck;
-        this.in = in;
-        this.out = out;
-        this.ois = ois;
-        this.oos = oos;
+    public ClienteInput(Socket sck) {
+        try{
+        this.in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
+        this.out = new PrintStream(sck.getOutputStream());
+        this.ois = new ObjectInputStream(sck.getInputStream());
+        this.oos = new ObjectOutputStream(sck.getOutputStream());
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     private void fecharCliente() {
@@ -115,11 +119,11 @@ public class ClienteInput implements Runnable {
                 usuario = credenciais[0];
                 senha = credenciais[1];
                 if (LoginDAO.verificarCredenciais(usuario, senha)) {
-                    if (!ServidorThread.estaLogado(usuario)) {
+                    if (!ServidorThread.estaLogado(this.usuario)) {
                         ServerView.log("Usuario " + usuario + " conectado\n");
                         oos.writeObject(new Mensagem("true"));
                         oos.writeObject(new Mensagem("Conectado ao servidor"));
-                        msgParaTodos("Usuario " + usuario + " se conectou", this);
+                        msgParaTodos("Usuario " + usuario + " se conectou",null,null,this);
                         ServidorThread.users.add(this);
                         logado = true;
                     } else {
@@ -142,9 +146,14 @@ public class ClienteInput implements Runnable {
         }
 
         try {
-            while ((input = (Mensagem) this.ois.readObject()) != null) {
-                ServidorThread.msgParaTodos(this.usuario + ": " + input.mensagem, this);
-                ServerView.log("Chat:" + this.usuario + ":" + this.input.mensagem + "\n");
+            while ((this.input = (Mensagem) this.ois.readObject()) != null) {
+                if(this.input.arquivo == null){
+                    ServidorThread.msgParaTodos(this.usuario + ": " + this.input.mensagem,null,null, this);
+                    ServerView.log("Chat:" + this.usuario + ":" + this.input.mensagem + "\n");
+                }else{
+                    ServidorThread.msgParaTodos(null, this.input.arquivo,this.input.nomeArquivo, this);
+                    ServerView.log(this.usuario + " Enviou o arquivo:" + this.input.nomeArquivo + "\n");
+                }
             }
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
@@ -155,7 +164,7 @@ public class ClienteInput implements Runnable {
             fecharCliente();
             ServidorThread.users.remove(this);
             ServerView.log("Usuario " + this.usuario + " desconectado\n");
-            ServidorThread.msgParaTodos("Usuario " + usuario + " desconectou\n");
+            ServidorThread.msgParaTodos("Usuario " + this.usuario + " desconectou\n");
         }
     }
 }

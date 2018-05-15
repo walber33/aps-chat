@@ -16,7 +16,7 @@ import view.ServerView;
  *
  * @author jorge
  */
-public class ServidorThread extends Thread {
+public class ServidorThread extends Thread{
 
     private String usuario, senha;
     private Socket sck = null;
@@ -24,14 +24,13 @@ public class ServidorThread extends Thread {
     private PrintStream out = null;
     private ServerSocket ss = null;
     private ClienteInput novoCli = null;
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
+    private ObjectInputStream ois = null;
+    private ObjectOutputStream oos = null;
     private int porta;
     public static ArrayList<ClienteInput> users;
     public static boolean rodando = true;
-    
-
     public ServidorThread(int porta) {
+        this.oos = null;
         this.porta = porta;
         users = new ArrayList<ClienteInput>();
     }
@@ -42,14 +41,18 @@ public class ServidorThread extends Thread {
         }
     }
 
-    public static void msgParaTodos(String mensagem, ClienteInput sender) {
+    public static void msgParaTodos(String mensagem,byte[] bf,String f, ClienteInput sender) {
         for (ClienteInput cli : users) {
             if (cli != sender) {
                 try {
-                    Mensagem msg = new Mensagem(mensagem);
-                    cli.oos.writeObject(msg);
-                    cli.oos.flush();
-                    cli.oos.close();
+                    
+                    if(f == null)
+                        cli.oos.writeObject(new Mensagem(mensagem));
+                    else
+                        cli.oos.writeObject(new Mensagem(bf, f, f.substring(f.lastIndexOf("."))));
+                    
+                    cli.oos.reset();
+                    //cli.oos.close();
                 } catch (IOException ex) {
                     Logger.getLogger(ServidorThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -79,39 +82,35 @@ public class ServidorThread extends Thread {
         }
     }
 
-    private void encerrarCliente(Socket pCli, BufferedReader pIn, PrintStream pOut) {
+    private void encerrarCliente(Socket pCli) {
         try {
-            pIn.close();
-            pOut.close();
-            pCli.close();
+           pCli.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    @Override
     public void run() {
         try {
             ss = new ServerSocket(porta);
+            
             while (true) {
                 sck = ss.accept();
                 ServerView.log("Nova conexão\n");
 
-                in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
+                /*in = new BufferedReader(new InputStreamReader(sck.getInputStream()));
                 out = new PrintStream(sck.getOutputStream());
                 ois = new ObjectInputStream(sck.getInputStream());
-                oos = new ObjectOutputStream(sck.getOutputStream());
+                oos = new ObjectOutputStream(sck.getOutputStream());*/
+                new Thread(new ClienteInput(sck)).start();
                 
-                novoCli = new ClienteInput(sck, in, out, ois, oos);
-                new Thread(novoCli).start();
             }
         } catch (IOException ex) {
             System.out.println("Erro no servidor");
             ex.printStackTrace();
         } finally {
-            encerrarCliente(sck, in, out);
+            encerrarCliente(sck);
             encerrarServidor();
         }
     }
-
 }

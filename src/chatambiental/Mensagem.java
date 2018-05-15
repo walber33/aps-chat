@@ -5,6 +5,7 @@
  */
 package chatambiental;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -12,12 +13,12 @@ import java.io.Serializable;
  * @author Aluno
  */
 public class Mensagem implements Serializable{
-
+    static long serialVersionUID = 10100;
     private String extensao = "";
-    private byte[] arquivo = null;
+    public byte[] arquivo = null;
     public String mensagem = "";
     private String caminho = "";
-    private String nomeArquivo;
+    public String nomeArquivo;
 
     public Mensagem(String pMensagem) {
         this.mensagem = pMensagem;
