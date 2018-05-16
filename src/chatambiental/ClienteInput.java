@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import static chatambiental.ServidorThread.msgParaTodos;
+import static chatambiental.ServidorThread.users;
 import dao.LoginDAO;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -134,6 +135,7 @@ public class ClienteInput implements Runnable {
                 } else {
                     oos.writeObject(new Mensagem("false"));
                     oos.writeObject(new Mensagem("Login ou senha incorretos"));
+
                     
                     ServerView.log("Tentiva de login recusado: usuário ou senha inválidos\n");
                     out.println("false");
@@ -151,8 +153,16 @@ public class ClienteInput implements Runnable {
         try {
             while ((this.input = (Mensagem) this.ois.readObject()) != null) {
                 if(this.input.arquivo == null){
+                    if(this.input.mensagem.startsWith("4")){
+                        String onlines = "";
+                        for(ClienteInput o : users){
+                             onlines += o.usuario+":";
+                        }
+                        ServidorThread.msgParaTodos("353535:"+onlines,null,null, this,true);
+                    }else{
                     ServidorThread.msgParaTodos(this.usuario + ": " + this.input.mensagem,null,null, this);
                     ServerView.log("Chat:" + this.usuario + ":" + this.input.mensagem + "\n");
+                    }
                 }else{
                     ServidorThread.msgParaTodos(null, this.input.arquivo,this.input.nomeArquivo, this);
                     ServerView.log(this.usuario + " Enviou o arquivo:" + this.input.nomeArquivo + "\n");
@@ -167,7 +177,7 @@ public class ClienteInput implements Runnable {
             fecharCliente();
             ServidorThread.users.remove(this);
             ServerView.log("Usuario " + this.usuario + " desconectado\n");
-            ServidorThread.msgParaTodos("Usuario " + this.usuario + " desconectou\n");
+            ServidorThread.msgParaTodos("Usuario " + this.usuario + " desconectou\n",null,null,this);
         }
     }
 }

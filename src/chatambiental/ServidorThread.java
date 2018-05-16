@@ -35,12 +35,7 @@ public class ServidorThread extends Thread{
         users = new ArrayList<ClienteInput>();
     }
 
-    public static void msgParaTodos(String mensagem) {
-        for (ClienteInput cli : users) {
-            cli.out.println(mensagem);
-        }
-    }
-
+    
     public static void msgParaTodos(String mensagem,byte[] bf,String f, ClienteInput sender) {
         for (ClienteInput cli : users) {
             if (cli != sender) {
@@ -59,7 +54,22 @@ public class ServidorThread extends Thread{
             }
         }
     }
-
+    public static void msgParaTodos(String mensagem,byte[] bf,String f, ClienteInput sender, boolean o) {
+        for (ClienteInput cli : users) {
+            if (cli == sender) {
+                try {
+                    
+                    if(f == null)
+                        cli.oos.writeObject(new Mensagem(mensagem));
+                    
+                    cli.oos.reset();
+                    //cli.oos.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServidorThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
     public static boolean estaLogado(String pUsuario) {
         boolean ret = false;
         for (ClienteInput cli : users) {
@@ -72,7 +82,7 @@ public class ServidorThread extends Thread{
     }
 
     public void encerrarServidor() {
-        msgParaTodos("DC");
+        msgParaTodos("DC",null,null,null);
         try {
             ss.close();
             in.close();
