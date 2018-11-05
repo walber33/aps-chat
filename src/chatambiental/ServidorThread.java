@@ -10,10 +10,7 @@ import java.net.*;
 import java.util.ArrayList;
 import view.ServerView;
 
-/**
- *
- * @author jorge
- */
+
 public class ServidorThread extends Thread {
 
     private String usuario, senha;
@@ -29,7 +26,7 @@ public class ServidorThread extends Thread {
 
     public ServidorThread(int porta) {
         this.porta = porta;
-        users = new ArrayList<ClienteOutput>();
+        users = new ArrayList<ClientOutput>();
     }
 
     public static void msgParaTodos(String mensagem) {
