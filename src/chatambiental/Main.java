@@ -7,10 +7,7 @@ package chatambiental;
 
 import view.ServerView;
 
-/**
- *
- * @author jorge
- */
+
 public class Main {
 
     /**
