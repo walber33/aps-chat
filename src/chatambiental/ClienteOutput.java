@@ -13,10 +13,9 @@ import static chatambiental.ServidorThread.msgParaTodos;
 import dao.LoginDAO;
 import view.ServerView;
 
-/**
- *
- * @author jorge
- */
+
+
+
 public class ClienteOutput implements Runnable {
 
     public String usuario, mensagem;
